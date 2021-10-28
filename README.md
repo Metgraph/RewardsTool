@@ -11,7 +11,7 @@ An application written in C# with the [Selenium library](https://www.selenium.de
     - The program will not start until the user will not press a button, useful if the program is executed each windows startup so in case you can stop it before starting
     
 
-  - **-f Path\of\folder**
+  - **-p Path\of\folder**
     - The program will install Microsoft Edge driver in the selected folder, you can put your driver in the folder if you want and the program will try to use it, but it will not be enabled to update the driver unleast you give the permission.  
     If not specified the programm will use the folder where is located
 
