@@ -39,7 +39,7 @@ namespace RewardsEdge
                             _w = false;
                         }
                         break;
-                    case "-u":
+                    case "-p":
                         if (args.Length - 1 > i && args[i + 1][0] != '-')
                         {
                             edgeUser = args[++i];
