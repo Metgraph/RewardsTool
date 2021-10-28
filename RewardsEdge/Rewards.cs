@@ -22,7 +22,7 @@ namespace RewardsEdge
         private static IWebDriver driver;
         private static EdgeOptions options;
 
-        static Tuple<string, string> Parameters(string[] args)
+        static Tuple<string, string> Arguments(string[] args)
         {
             string edgeUser = "Default";
             string path = @".\";
@@ -520,7 +520,7 @@ namespace RewardsEdge
             string edgeUser, path;
             try
             {
-                Tuple<string, string> paramsRet = Parameters(args);
+                Tuple<string, string> paramsRet = Arguments(args);
                 edgeUser = paramsRet.Item1;
                 path = paramsRet.Item2;
             }
