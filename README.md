@@ -1,12 +1,11 @@
 # RewardsEdge
+An application written in C# with the [Selenium library](https://www.selenium.dev/) that resolves automatically quizzes and researches on [Microsoft rewards](https://account.microsoft.com/rewards/) to earn points.  
 
-RewardsEdge is a program that automates [Microsoft rewards](https://account.microsoft.com/rewards/) jobs.  
-national version tested: IT
 
-# Requirements
+## Requirements
   - Microsoft Edge based on Chromium
 
-# Arguments (optional)
+## Arguments (optional)
 
   - **-w**
     - The program will not start until the user will not press a button, useful if the program is executed each windows startup so in case you can stop it before starting
@@ -21,5 +20,6 @@ national version tested: IT
     - The program will open Microsoft Edge using the specified profile. If not specified the program will use the default profile
     
 
-
+## Supported nation
+Italy
 
