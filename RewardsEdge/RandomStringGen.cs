@@ -5,8 +5,8 @@ namespace RewardsEdge
 {
     class RandomStringGen
     {
-        Random r;
-        string chars;
+        private Random r;
+        private string chars;
         public RandomStringGen()
         {
             r = new Random();
