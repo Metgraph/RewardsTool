@@ -22,7 +22,7 @@ namespace RewardsEdge
         private static IWebDriver driver;
         private static EdgeOptions options;
 
-        static Tuple<string, string> Arguments(string[] args)
+        private static Tuple<string, string> Arguments(string[] args)
         {
             string edgeUser = "Default";
             string path = @".\";
@@ -67,7 +67,7 @@ namespace RewardsEdge
         }
 
         //Take the daily cards
-        static void DailyCards(int sleep = 1000)
+        private static void DailyCards(int sleep = 1000)
         {
             //get the 3 daily cards
             var listDaily = driver.FindElements(By.XPath("//div[@id='daily-sets']//div[@class='c-card-content']"));
@@ -90,7 +90,7 @@ namespace RewardsEdge
         }
 
         //take the not daily cards
-        static void OtherCards(int sleep = 1000)
+        private static void OtherCards(int sleep = 1000)
         {
             //get the other cards
             var listOthers = driver.FindElements(By.XPath("//mee-card-group[@id='more-activities']//div[@class='c-card-content']"));
@@ -110,7 +110,7 @@ namespace RewardsEdge
             }
         }
 
-        static void resolvePunchCard(IWebElement punchcard, int sleep)
+        private static void resolvePunchCard(IWebElement punchcard, int sleep)
         {
             Console.WriteLine("Entrato in punch card");
             //open the punch card page
@@ -139,7 +139,7 @@ namespace RewardsEdge
             driver.Close();
             driver.SwitchTo().Window(driver.WindowHandles[0]);
         }
-        static void PunchCard(int sleep = 1000)
+        private static void PunchCard(int sleep = 1000)
         {
             IWebElement punchCard;
             //try to take the punch card
@@ -183,13 +183,13 @@ namespace RewardsEdge
         }
 
         //check if the card is completed
-        static bool IsCardDone(IWebElement we)
+        private static bool IsCardDone(IWebElement we)
         {
             return we.FindElements(By.XPath(".//span[@class='mee-icon mee-icon-SkypeCircleCheck']")).Count > 0;
         }
 
         //when is possible click the element in the page
-        static void Click(IWebElement we)
+        private static void Click(IWebElement we)
         {
             //IWebElement element = wait.Until(ExpectedConditions.ElementToBeClickable(we));
             wait.Until(e => we.Displayed && we.Enabled ? we : null);
@@ -198,7 +198,7 @@ namespace RewardsEdge
 
         //TOCOMPLETE
         //function to recognize if there is a quiz, a pool or nothing
-        static void ResolveQuiz(int sleep = 3500)
+        private static void ResolveQuiz(int sleep = 3500)
         {
             //wait before analyze page, so page has the time to load and in case it isn't a quiz the time to get the card as completed
             Thread.Sleep(sleep);
@@ -234,7 +234,7 @@ namespace RewardsEdge
         }
 
         //recognize which type of quiz it is
-        static void DoQuiz(int sleep = 3500)
+        private static void DoQuiz(int sleep = 3500)
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             if ((bool)js.ExecuteScript("return _w.rewardsQuizRenderInfo.isListicleQuizType"))
@@ -253,7 +253,7 @@ namespace RewardsEdge
         }
 
         //resolve multiple answer
-        static void MultipleAnswerQuiz(int sleep)
+        private static void MultipleAnswerQuiz(int sleep)
         {
             var maxAndCurrent = getMaxAndCurrent();
             //3 sub-quiz
@@ -283,7 +283,7 @@ namespace RewardsEdge
         }
 
         //resolve single answer quiz
-        static void SingleAnswerQuiz(int sleep)
+        private static void SingleAnswerQuiz(int sleep)
         {
             var maxAndCurrent = getMaxAndCurrent();
             //3 sub-quiz
@@ -305,7 +305,7 @@ namespace RewardsEdge
         }
 
         //resolve this or that quiz
-        static void ThisOrThat(int sleep)
+        private static void ThisOrThat(int sleep)
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             var maxAndCurrent = getMaxAndCurrent(js);
@@ -330,12 +330,12 @@ namespace RewardsEdge
             }
         }
 
-        static long[] getMaxAndCurrent()
+        private static long[] getMaxAndCurrent()
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             return getMaxAndCurrent(js);
         }
-        static long[] getMaxAndCurrent(IJavaScriptExecutor js)
+        private static long[] getMaxAndCurrent(IJavaScriptExecutor js)
         {
             long[] res = new long[2];
             res[0] = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.maxQuestions");
@@ -344,7 +344,7 @@ namespace RewardsEdge
         }
 
         //trasposition in c# of function br present in the html code in ThisOrThat quiz
-        static string ResolveCorrectAnswer(string dataOption, string IG)
+        private static string ResolveCorrectAnswer(string dataOption, string IG)
         {
             int t = 0;
             foreach (char c in dataOption)
@@ -357,7 +357,7 @@ namespace RewardsEdge
         }
 
         //make the desktop and mobile searches to get the point
-        static void BingResearches(long pointForSearch, bool closeBrowserAtEnd = false, int length = 4, int sleep = 1000)
+        private static void BingResearches(long pointForSearch, bool closeBrowserAtEnd = false, int length = 4, int sleep = 1000)
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             //get how many searches remain for desktop
@@ -426,7 +426,7 @@ namespace RewardsEdge
         }
 
         //if not logged click on button login (you must have been logged before, so that after have clicked the button the site will not request account credentials)
-        static void Login()
+        private static void Login()
         {
             try
             {
@@ -439,7 +439,7 @@ namespace RewardsEdge
 
         }
 
-        static string GetEdgeVersion()
+        private static string GetEdgeVersion()
         {
             //get version using powershell
             var proc = new Process
@@ -461,7 +461,7 @@ namespace RewardsEdge
             return ret.Substring(0, ret.Length - 2);
         }
 
-        static void DownloadDriver(string path)
+        private static void DownloadDriver(string path)
         {
             string version = GetEdgeVersion();
             string req = "https://msedgedriver.azureedge.net/" + version + "/edgedriver_win64.zip";
@@ -514,7 +514,7 @@ namespace RewardsEdge
             Console.WriteLine("Download completed");
         }
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             //manage arguments
             string edgeUser, path;
