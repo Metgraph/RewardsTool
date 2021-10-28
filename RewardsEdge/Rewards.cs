@@ -530,14 +530,16 @@ namespace RewardsEdge
                 return;
             }
 
-            //end manage arguments
+
             options = new EdgeOptions
             {
                 UseChromium = true
             };
+
             //set the profile to use
             options.AddArgument("user-data-dir=" + Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\User Data");
             options.AddArguments("profile-directory=" + edgeUser);
+
             // Create an Edge session, if Edge is already opened or an exception occoured during creation of driver a messagebox will show a message
             try
             {
@@ -578,6 +580,8 @@ namespace RewardsEdge
             bool doPunchCard = false;
 
             //try to click pause button in the punchCards section
+            //TODO check if it is still needed
+            /*
             try
             {
                 Click(driver.FindElement(By.XPath("//button[@class='c-action-toggle c-glyph f-toggle glyph-pause']")));
@@ -586,7 +590,7 @@ namespace RewardsEdge
             catch (NoSuchElementException)
             {
                 Console.WriteLine("punch card will be not resolved");
-            }
+            }*/
 
             //the code is executed twice so if one or more cards have been missed they can be resolved again
             Console.WriteLine("Starting cards");
