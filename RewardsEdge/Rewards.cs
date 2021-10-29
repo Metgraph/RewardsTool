@@ -9,6 +9,7 @@ using System.Threading;
 //using System.Windows;
 using System.Windows.Forms;
 using System.IO.Compression;
+using System.Collections.ObjectModel;
 
 namespace RewardsEdge
 {
@@ -77,10 +78,9 @@ namespace RewardsEdge
         }
 
         /**
-         * <summary> Takes the daily cards in the page. </summary>
-         * <param name="sleep"> Time to wait betwenn resolving each cards. </param>
+         * <summary> Takes and complete the daily cards in the page. </summary>
          */
-        private static void DailyCards(int sleep = 1000)
+        private static void DailyCards()
         {
             // get the 3 daily cards
             var listDaily = driver.FindElements(By.XPath("//div[@id='daily-sets']//div[@class='c-card-content']"));
@@ -93,7 +93,7 @@ namespace RewardsEdge
                     Click(listDaily[i].FindElement(By.XPath(".//div[@class='actionLink x-hidden-vp1']/span")));
                     driver.SwitchTo().Window(driver.WindowHandles.Last());
                     // resolve quiz if exist
-                    ResolveQuiz();
+                    ResolvePromotion();
                     driver.SwitchTo().Window(driver.WindowHandles[0]);
 
                 }
@@ -102,8 +102,10 @@ namespace RewardsEdge
             }
         }
 
-        // take the not daily cards
-        private static void OtherCards(int sleep = 1000)
+        /**
+         * <summary> Takes and complete the other cards.</summary>
+         */
+        private static void OtherCards()
         {
             // get the other cards
             var listOthers = driver.FindElements(By.XPath("//mee-card-group[@id='more-activities']//div[@class='c-card-content']"));
@@ -115,7 +117,7 @@ namespace RewardsEdge
                     Click(other.FindElement(By.XPath(".//div[@class='actionLink x-hidden-vp1']")));
                     driver.SwitchTo().Window(driver.WindowHandles.Last());
                     // resolve quiz if exist
-                    ResolveQuiz();
+                    ResolvePromotion();
                     driver.SwitchTo().Window(driver.WindowHandles[0]);
                 }
 
@@ -123,7 +125,13 @@ namespace RewardsEdge
             }
         }
 
-        private static void resolvePunchCard(IWebElement punchcard, int sleep)
+        /**
+         * <summary> Completes the passed punch card. </summary>
+         * If a punch card requires to buy something it will be ignored.
+         * <param name="punchcard"> The punch card to complete. </param>
+         * <param name="sleep"> Time to wait after completed a promotion. </param>
+         */
+        private static void ResolvePunchCard(IWebElement punchcard, int sleep)
         {
             Console.WriteLine("Entrato in punch card");
             // open the punch card page
@@ -145,13 +153,19 @@ namespace RewardsEdge
                 // open the url in another page
                 Click(toClick);
                 driver.SwitchTo().Window(driver.WindowHandles.Last());
-                ResolveQuiz();
+                ResolvePromotion();
                 driver.SwitchTo().Window(driver.WindowHandles.Last());
             }
             // close page and return to the rewards page
             driver.Close();
             driver.SwitchTo().Window(driver.WindowHandles[0]);
         }
+
+        /**
+         * <summary> Completes the punch cards in the page. </summary>
+         * to complete a single punch card the method uses <see cref="ResolvePunchCard(IWebElement, int)">ResolvePunchCard</see>.
+         * <param name="sleep"> Time to wait after completed a promotion. </param>
+         */
         private static void PunchCard(int sleep = 1000)
         {
             IWebElement punchCard;
@@ -188,28 +202,51 @@ namespace RewardsEdge
                 // if punch card isn't completed
                 if (!completed)
                 {
-                    resolvePunchCard(section, sleep);
+                    ResolvePunchCard(section, sleep);
                 }
 
             }
 
         }
 
-        //check if the card is completed
-        private static bool IsCardDone(IWebElement we)
+        /**
+         * <summary> Check if card is completed. </summary>
+         * <param name="card"> The card to be checked. </param>
+         */
+        private static bool IsCardDone(IWebElement card)
         {
-            return we.FindElements(By.XPath(".//span[@class='mee-icon mee-icon-SkypeCircleCheck']")).Count > 0;
+            return card.FindElements(By.XPath(".//span[@class='mee-icon mee-icon-SkypeCircleCheck']")).Count > 0;
         }
 
-        // when is possible click the element in the page
+        /**
+         * <summary> Click the webElement when possible. </summary>
+         * It's used to avoid errors when trying to click.
+         * <param name="we"> The webElement to click. </param>
+         */
         private static void Click(IWebElement we)
         {
             wait.Until(e => we.Displayed && we.Enabled ? we : null);
             we.Click();
         }
 
-        // function to recognize if there is a quiz, a pool or nothing
-        private static void ResolveQuiz(int sleep = 3500)
+        /**
+         * <summary> Click on a pool option to complete the promotion. </summary>
+         * <param name="poolOptions"> All the pool options</param>
+         */
+        private static void ResolvePool(ReadOnlyCollection<IWebElement> poolOptions)
+        {
+            Click(poolOptions[0].FindElement(By.XPath(".//div[@id='btoption0']")));
+            Thread.Sleep(500);
+            driver.Close();
+        }
+
+        /**
+         * <summary> Completes the promotion. </summary>
+         * Check which type of promotion it is and execute the correct function to resolve it (<see cref="ResolvePool(ReadOnlyCollection{IWebElement})">ResolvePool</see> and <see cref="DoQuiz(int)">DoQuiz</see>).
+         * It's recommended to set an high sleep time because the quiz overlay not appear immediatly and becauese in case it is a simple resarch if the time the browser stay in the page is short, it may not award points 
+         * <param name="sleep"> Time to wait before checking which type it is</param>
+         */
+        private static void ResolvePromotion(int sleep = 3500)
         {
             // wait before analyze page, so page has the time to load and in case it isn't a quiz the time to get the card as completed
             Thread.Sleep(sleep);
@@ -225,9 +262,7 @@ namespace RewardsEdge
             var findPoll = overlay[0].FindElements(By.XPath(".//div[@class='bt_poll']"));
             if (findPoll.Count > 0)
             {
-                Click(findPoll[0].FindElement(By.XPath(".//div[@id='btoption0']")));
-                Thread.Sleep(500);
-                driver.Close();
+                ResolvePool(findPoll);
                 return;
             }
 
@@ -244,7 +279,11 @@ namespace RewardsEdge
 
         }
 
-        // recognize which type of quiz it is
+        /**
+         * <summary> Recognizes which quiz it is and call the right function to complete it.</summary>
+         * Supported quiz: <see cref="MultipleAnswerQuiz(int)">multiple answer quiz</see>, <see cref="ThisOrThat(int)">this or that</see> and <see cref="SingleAnswerQuiz(int)">single answer quiz</see>.
+         * <param name="sleep"> Sleep parameter to pass to the other functions. </param>
+         */
         private static void DoQuiz(int sleep = 3500)
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
@@ -254,7 +293,7 @@ namespace RewardsEdge
             }
             else if ((bool)js.ExecuteScript("return _w.rewardsQuizRenderInfo.isWOTQuizType"))
             {
-                ThisOrThat(sleep);
+                ThisOrThat();
             }
             else
             {
@@ -263,12 +302,15 @@ namespace RewardsEdge
 
         }
 
-        // resolve multiple answer
+        /**
+         * <summary> Complete the multiple answer quiz</summary>
+         * <param name="sleep"> Time to wait after have been completed a sub-quiz</param>
+         */
         private static void MultipleAnswerQuiz(int sleep)
         {
             var maxAndCurrent = getMaxAndCurrent();
-            Console.WriteLine("current: " + maxAndCurrent[1] + ", max: " + maxAndCurrent[0]);
-            for (long i = maxAndCurrent[1]; i <= maxAndCurrent[0]; i++)
+            Console.WriteLine("current: " + maxAndCurrent.Current + ", max: " + maxAndCurrent.Max);
+            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++)
             {
                 // 8 possible answers
                 for (int j = 0; j < 8; j++)
@@ -281,7 +323,7 @@ namespace RewardsEdge
                     if (temp.Count > 0)
                         break;
                     // if this is the last sub-quiz there is another way to recognize if quiz is ended
-                    else if (i == maxAndCurrent[0])
+                    else if (i == maxAndCurrent.Max)
                     {
                         var temp2 = driver.FindElements(By.XPath("//div[@class='btOverlay']//div[@class='headerMessage']"));
                         if (temp2.Count > 0)
@@ -292,11 +334,14 @@ namespace RewardsEdge
             }
         }
 
-        // resolve single answer quiz
+        /**
+         * <summary> Complete the single answer quiz</summary>
+         * <param name="sleep"> Time to wait after have been completed a sub-quiz</param>
+         */
         private static void SingleAnswerQuiz(int sleep)
         {
             var maxAndCurrent = getMaxAndCurrent();
-            for (long i = maxAndCurrent[1]; i <= maxAndCurrent[0]; i++)
+            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++)
             {
                 // 4 possible answers
                 for (int j = 0; j < 4; j++)
@@ -313,12 +358,14 @@ namespace RewardsEdge
 
         }
 
-        // resolve this or that quiz
-        private static void ThisOrThat(int sleep)
+        /**
+         * <summary> Complete the "this or that" quiz</summary>
+         */
+        private static void ThisOrThat()
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             var maxAndCurrent = getMaxAndCurrent(js);
-            for (long i = maxAndCurrent[1]; i <= maxAndCurrent[0]; i++)
+            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++)
             {
                 // this value will be used to calculate which is the correct answer
                 string IG = driver.FindElement(By.XPath("//span[@id='nc_iid']")).GetAttribute("_ig");
@@ -336,20 +383,36 @@ namespace RewardsEdge
             }
         }
 
-        private static long[] getMaxAndCurrent()
+        /**
+         * <summary> Get the maximus and the current points in a quiz.</summary>
+         * <returns> Maximus and the current points in a quiz.</returns>
+         */
+        private static (long Max, long Current) getMaxAndCurrent()
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             return getMaxAndCurrent(js);
         }
-        private static long[] getMaxAndCurrent(IJavaScriptExecutor js)
+
+        /**
+         * <summary> Get the maximum and the current points in a quiz with the passed js executor.</summary>
+         * <param name="js"> The js executor to use</param>
+         * <returns> Maximum and the current points in a quiz.</returns>
+         */
+        private static (long Max, long Current) getMaxAndCurrent(IJavaScriptExecutor js)
         {
-            long[] res = new long[2];
-            res[0] = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.maxQuestions");
-            res[1] = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.currentQuestionNumber");
-            return res;
+            long max = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.maxQuestions");
+            long curr = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.currentQuestionNumber");
+            return (Max: max, Current: curr);
         }
 
-        // trasposition in c# of function "br" presents in the html code in ThisOrThat quiz
+        // TODO complete documentation
+        /**
+         * <summary> Gets the correct answer value in this or that quiz.</summary>
+         * Trasposition in C# of function "br" present in the html of this or that quiz.
+         * <param name="dataOption"> The data option. </param>
+         * <param name="IG"> IG value. </param>
+         * <returns> The correct answer value.</returns>
+         */
         private static string ResolveCorrectAnswer(string dataOption, string IG)
         {
             int t = 0;
@@ -362,7 +425,13 @@ namespace RewardsEdge
             return (t + Convert.ToInt32(hex, 16)).ToString();
         }
 
-        // make the desktop and mobile searches to get the point
+        /**
+         * <summary> Makes PC and mobile Bing researches to earn points.</summary>
+         * <param name="pointForSearch"> How many points are eanred for research.</param>
+         * <param name="closeBrowserAtEnd"> If browser needs to be closed and the program ends.</param>
+         * <param name="length"> How long the research string must be.</param>
+         * <param name="sleep"> Time to wait after a research</param>
+         */
         private static void BingResearches(long pointForSearch, bool closeBrowserAtEnd = false, int length = 4, int sleep = 1000)
         {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
@@ -431,7 +500,10 @@ namespace RewardsEdge
 
         }
 
-        // if not logged click on button login (you must have been logged before, so that after have clicked the button the site will not request account credentials)
+        /**
+         * <summary> If not logged click on button login.</summary>
+         * you must have been logged before, so that after have clicked the button the site will not request account credentials.
+         */
         private static void Login()
         {
             try
@@ -445,6 +517,11 @@ namespace RewardsEdge
 
         }
 
+        /**
+         * <summary> Gets the Edge version.</summary>
+         * It uses powershell.exe to get the edge version.
+         * <returns> Edge version.</returns>
+         */
         private static string GetEdgeVersion()
         {
             // get version using powershell
@@ -467,6 +544,13 @@ namespace RewardsEdge
             return ret.Substring(0, ret.Length - 2);
         }
 
+        /**
+         * <summary> Download the right driver version for Edge.</summary>
+         * To get the current Edge version it is used the function <see cref="GetEdgeVersion">GetEdgeVersion</see>.
+         * If in the folder there is a "edgedriver_win64.zip" file the program will ends, it is necessary to remove that file.
+         * If there is already a "msedgedriver.exe" file and the program can't remove it the program will ends, it is necessary to remove that file.
+         * <param name="path"> The path where download the driver</param>
+         */
         private static void DownloadDriver(string path)
         {
             string version = GetEdgeVersion();
