@@ -343,7 +343,7 @@ namespace RewardsEdge
             return res;
         }
 
-        //trasposition in c# of function br present in the html code in ThisOrThat quiz
+        //trasposition in c# of function "br" present in the html code in ThisOrThat quiz
         private static string ResolveCorrectAnswer(string dataOption, string IG)
         {
             int t = 0;
