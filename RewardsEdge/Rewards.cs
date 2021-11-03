@@ -21,6 +21,9 @@ namespace RewardsEdge
         public ProfileNotFound(string message) : base(message) { }
     }
 
+    /**
+     * <summary> Exception to raise in case the os is not supported. </summary>
+     */
     class InvalidPlatform : Exception
     {
         public InvalidPlatform(string message) : base(message) { }
@@ -552,6 +555,10 @@ namespace RewardsEdge
             return ret.Substring(0, ret.Length - 2);
         }
 
+        /**
+         * <summary> Get the os and architecture used, necessary to download the correct driver. </summary>
+         * <returns> The driver platform.</returns>
+         */
         private static string GetOSArch()
         {
             string toRet;
