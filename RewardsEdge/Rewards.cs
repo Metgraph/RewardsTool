@@ -573,7 +573,7 @@ namespace RewardsEdge
                         break;
 
                     default:
-                        throw new InvalidPlatform("This windows version is not supported");
+                        throw new InvalidPlatform("This Windows version is not supported");
 
                 }
             }
@@ -583,6 +583,7 @@ namespace RewardsEdge
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
+                // TODO test if it works and if return "linux64" if the architecture is arm64
                 if (Environment.Is64BitOperatingSystem)
                 {
                     toRet = "linux64";
