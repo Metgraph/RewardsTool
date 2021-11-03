@@ -590,7 +590,7 @@ namespace RewardsEdge
                 }
                 else
                 {
-                    throw new InvalidPlatform("Linux 32 bit is not supported");
+                    throw new InvalidPlatform("This Linux version is not supported");
                 }
                 
             }
