@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-//using System.Windows;
 using System.Windows.Forms;
 using System.IO.Compression;
 using System.Collections.ObjectModel;
@@ -168,6 +167,7 @@ namespace RewardsEdge
          */
         private static void PunchCard(int sleep = 1000)
         {
+            Console.WriteLine("In punchcard");
             IWebElement punchCard;
             // try to take the punch card
             try
@@ -340,11 +340,13 @@ namespace RewardsEdge
          */
         private static void SingleAnswerQuiz(int sleep)
         {
-            var maxAndCurrent = getMaxAndCurrent();
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+            var maxAndCurrent = getMaxAndCurrent(js);
+            long numOptions = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.numberOfOptions");
             for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++)
             {
                 // 4 possible answers
-                for (int j = 0; j < 4; j++)
+                for (long j = 0; j < numOptions; j++)
                 {
                     var slide = driver.FindElement(By.XPath("//div[@class='btOverlay']//input[@class='rqOption']"));
                     Click(slide);
@@ -667,20 +669,7 @@ namespace RewardsEdge
 
             Login();
 
-            bool doPunchCard = false;
-
-            // try to click pause button in the punchCards section
-            // TODO check if it is still needed
-            /*
-            try
-            {
-                Click(driver.FindElement(By.XPath("//button[@class='c-action-toggle c-glyph f-toggle glyph-pause']")));
-                doPunchCard = true;
-            }
-            catch (NoSuchElementException)
-            {
-                Console.WriteLine("punch card will be not resolved");
-            }*/
+            bool doPunchCard = true;
 
             //the code is executed twice so if one or more cards have been missed they can be resolved again
             Console.WriteLine("Starting cards");
@@ -694,7 +683,7 @@ namespace RewardsEdge
                 }
             }
             BingResearches(3, true);
-            Console.ReadKey();
+            //Console.ReadKey();
         }
     }
 }
