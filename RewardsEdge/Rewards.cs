@@ -619,7 +619,7 @@ namespace RewardsEdge
                 return;
             }
 
-            // set 
+            // set Edge chromium
             options = new EdgeOptions
             {
                 UseChromium = true
