@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.IO.Compression;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 
 namespace RewardsEdge
 {
@@ -18,6 +19,11 @@ namespace RewardsEdge
     class ProfileNotFound : Exception
     {
         public ProfileNotFound(string message) : base(message) { }
+    }
+
+    class InvalidPlatform : Exception
+    {
+        public InvalidPlatform(string message) : base(message) { }
     }
 
     /**
@@ -546,6 +552,55 @@ namespace RewardsEdge
             return ret.Substring(0, ret.Length - 2);
         }
 
+        private static string GetOSArch()
+        {
+            string toRet;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                string arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432");
+                switch (arch)
+                {
+                    case "x86":
+                        toRet = "win32";
+                        break;
+
+                    case "AMD64":
+                        toRet = "win64";
+                        break;
+
+                    case "ARM64":
+                        toRet = "arm64";
+                        break;
+
+                    default:
+                        throw new InvalidPlatform("This windows version is not supported");
+
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                toRet = "mac64";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                if (Environment.Is64BitOperatingSystem)
+                {
+                    toRet = "linux64";
+                }
+                else
+                {
+                    throw new InvalidPlatform("Linux 32 bit is not supported");
+                }
+                
+            }
+            else
+            {
+                throw new InvalidPlatform("Platform not recognized");
+            }
+
+            return toRet;
+        }
+
         /**
          * <summary> Download the right driver version for Edge.</summary>
          * To get the current Edge version it is used the function <see cref="GetEdgeVersion">GetEdgeVersion</see>.
@@ -556,7 +611,7 @@ namespace RewardsEdge
         private static void DownloadDriver(string path)
         {
             string version = GetEdgeVersion();
-            string req = "https://msedgedriver.azureedge.net/" + version + "/edgedriver_win64.zip";
+            string req = "https://msedgedriver.azureedge.net/" + version + "/edgedriver_"+ GetOSArch() + ".zip";
             string zipPath = Path.GetFullPath(path + "edgedriver_win64.zip");
             string exePath = Path.GetFullPath(path + "msedgedriver.exe");
 
