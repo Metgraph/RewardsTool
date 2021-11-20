@@ -99,6 +99,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EdgeManagment.cs" />
     <Compile Include="RandomStringGen.cs" />
     <Compile Include="Rewards.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
