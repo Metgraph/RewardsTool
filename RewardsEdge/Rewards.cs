@@ -80,7 +80,7 @@ namespace RewardsEdge
          */
         private static void ResolvePunchCard(IWebElement punchcard, int sleep)
         {
-            Console.WriteLine("Entrato in punch card");
+            Console.WriteLine("In punch card");
             // open the punch card page
             //punchcard.FindElement(By.XPath(".//span[@class='pointLink ng-binding ng-scope']")).Click();
             Click(punchcard.FindElement(By.XPath(".//span[@class='pointLink ng-binding ng-scope']")));
@@ -138,7 +138,7 @@ namespace RewardsEdge
                 Click(button);
                 IWebElement section = sections[i_section++];
 
-                Console.WriteLine("Nome: " + section.FindElement(By.XPath(".//p[@class='c-subheading ng-binding']")).Text);
+                Console.WriteLine("Name: " + section.FindElement(By.XPath(".//p[@class='c-subheading ng-binding']")).Text);
                 bool completed = true;
                 foreach (var check in section.FindElements(By.XPath(".//div[@class='icon-container ng-scope']/span/span")))
                 {
