@@ -2,7 +2,6 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
-
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -473,12 +472,13 @@ namespace RewardsEdge
         public static void Main(string[] args)
         {
             // manage arguments
-            string edgeUser, path;
+            string edgeUser, path, userDataDir;
             try
             {
-                Tuple<string, string> paramsRet = EdgeManagment.Arguments(args);
+                Tuple<string, string, string> paramsRet = EdgeManagment.Arguments(args);
                 edgeUser = paramsRet.Item1;
-                path = paramsRet.Item2;
+                userDataDir = paramsRet.Item2;
+                path = paramsRet.Item3;
             }
             catch (ProfileNotFound e)
             {
@@ -493,7 +493,7 @@ namespace RewardsEdge
             };
 
             //set the profile to use
-            options.AddArgument("user-data-dir=" + Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\User Data");
+            options.AddArgument("user-data-dir=" + userDataDir);
             options.AddArguments("profile-directory=" + edgeUser);
 
             // Create an Edge session

@@ -8,6 +8,14 @@ using System.Windows.Forms;
 
 namespace RewardsEdge
 {
+    enum OSList
+    {
+        Windows64 = 0,
+        Windows32 = 1,
+        WindowsARM = 2,
+        MacOS = 4,
+        Linux = 5
+    }
 
     /**
      * <summary> Exception to raise in case the program can't find the selected Microsoft Edge progile. </summary>
@@ -17,6 +25,7 @@ namespace RewardsEdge
         public ProfileNotFound(string message) : base(message) { }
     }
 
+
     /**
      * <summary> Exception to raise in case the os is not supported. </summary>
      */
@@ -25,15 +34,70 @@ namespace RewardsEdge
         public InvalidPlatform(string message) : base(message) { }
     }
 
+
     class EdgeManagment
     {
+
+        public static OSList currentOS { get; private set; }
+
+
+        private static void ExistEdgeFolder(string path, string profileFolder)
+        {
+            if (!Directory.Exists(path))
+            {
+                Console.WriteLine("The selected profile doesn't exist, insert a valid profile or leave it empty");
+                Console.ReadKey();
+                throw new ProfileNotFound("Profile " + profileFolder + " not found");
+            }
+        }
+
+
+        /**
+         * <summary> Check if the user exists, if it doesn't exist it will execute <see cref="ExistEdgeFolder(string, string)">ExistEdgeFolder</see> function </summary>
+         * <param name="profileFolder"> </param>
+         */
+        private static string ResolveEdgeFolder(string profileFolder)
+        {
+            string path;
+            switch (currentOS)
+            {
+                case OSList.Windows32:
+                case OSList.Windows64:
+                case OSList.WindowsARM:
+                    path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\User Data\\";
+                    ExistEdgeFolder(path, profileFolder);
+                    break;
+
+
+                case OSList.MacOS:
+                    path = "~/Library/Application Support/microsoft-edge/";
+                    ExistEdgeFolder(path, profileFolder);
+                    break;
+
+                case OSList.Linux:
+                    path = "~/.config/microsoft-edge/";
+                    ExistEdgeFolder(path, profileFolder);
+                    break;
+
+                default:
+                    Console.WriteLine("The selected profile doesn't exist, insert a valid profile or leave it empty");
+                    Console.ReadKey();
+                    throw new ProfileNotFound("Profile " + profileFolder + " not found");
+
+            }
+            return path;
+
+        }
+
+
         /** <summary>Elaborates the given arguments. </summary>
          * <param name="args"> The array of arguments, it must have the same structure of the args passed in <see cref="Main(string[])">Main</see>. </param>
          */
-        public static Tuple<string, string> Arguments(string[] args)
+        public static Tuple<string, string, string> Arguments(string[] args)
         {
-            string edgeUser = "Default";
-            string path = @".\";
+            string profileFolder = "Default";
+            string driverPath = @".\";
+            string edgePath = ResolveEdgeFolder(profileFolder);
             bool _w = true;
             for (int i = 0; i < args.Length; i++)
             {
@@ -50,29 +114,25 @@ namespace RewardsEdge
                     case "-p":
                         if (args.Length - 1 > i && args[i + 1][0] != '-')
                         {
-                            edgeUser = args[++i];
-                            if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\User Data" + edgeUser))
-                            {
-                                Console.WriteLine("The selected profile doesn't exist, insert a valid profile or leave it empty");
-                                Console.ReadKey();
-                                throw new ProfileNotFound("Profile " + edgeUser + " not found");
-                            }
+                            profileFolder = args[++i];
+                            edgePath = ResolveEdgeFolder(profileFolder);
                         }
                         break;
 
                     case "-f":
                         if (args.Length - 1 > i && args[i + 1][0] != '-')
                         {
-                            path = args[++i];
+                            driverPath = args[++i];
                         }
                         break;
                 }
 
             }
-            if (path.Last() != '\\')
-                path += "\\";
-            return Tuple.Create(edgeUser, path);
+            if (driverPath.Last() != '\\')
+                driverPath += "\\";
+            return Tuple.Create(profileFolder, edgePath, driverPath);
         }
+
 
         /**
          * <summary> Download the right driver version for Edge.</summary>
@@ -141,18 +201,22 @@ namespace RewardsEdge
             string toRet;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432");
+                //string arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432");
+                string arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
                 switch (arch)
                 {
                     case "x86":
+                        currentOS = OSList.Windows32;
                         toRet = "win32";
                         break;
 
                     case "AMD64":
+                        currentOS = OSList.Windows64;
                         toRet = "win64";
                         break;
 
                     case "ARM64":
+                        currentOS = OSList.WindowsARM;
                         toRet = "arm64";
                         break;
 
@@ -163,6 +227,7 @@ namespace RewardsEdge
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
+                currentOS = OSList.MacOS;
                 toRet = "mac64";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -170,6 +235,7 @@ namespace RewardsEdge
                 // TODO test if it works and if return "linux64" if the architecture is arm64
                 if (Environment.Is64BitOperatingSystem)
                 {
+                    currentOS = OSList.Linux;
                     toRet = "linux64";
                 }
                 else
