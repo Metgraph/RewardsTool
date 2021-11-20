@@ -472,11 +472,11 @@ namespace RewardsEdge
         public static void Main(string[] args)
         {
             // manage arguments
-            string edgeUser, path, userDataDir;
+            string profileFolder, path, userDataDir;
             try
             {
                 Tuple<string, string, string> paramsRet = EdgeManagment.Arguments(args);
-                edgeUser = paramsRet.Item1;
+                profileFolder = paramsRet.Item1;
                 userDataDir = paramsRet.Item2;
                 path = paramsRet.Item3;
             }
@@ -494,7 +494,7 @@ namespace RewardsEdge
 
             //set the profile to use
             options.AddArgument("user-data-dir=" + userDataDir);
-            options.AddArguments("profile-directory=" + edgeUser);
+            options.AddArguments("profile-directory=" + profileFolder);
 
             // Create an Edge session
             try
