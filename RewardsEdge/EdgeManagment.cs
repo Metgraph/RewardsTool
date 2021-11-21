@@ -10,11 +10,9 @@ namespace RewardsEdge
 {
     enum OSList
     {
-        Windows64 = 0,
-        Windows32 = 1,
-        WindowsARM = 2,
-        MacOS = 4,
-        Linux = 5
+        Windows64,
+        Windows32,
+        WindowsARM ,
     }
 
     /**
@@ -58,33 +56,8 @@ namespace RewardsEdge
          */
         private static string ResolveEdgeFolder(string profileFolder)
         {
-            string path;
-            switch (currentOS)
-            {
-                case OSList.Windows32:
-                case OSList.Windows64:
-                case OSList.WindowsARM:
-                    path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\User Data\\";
-                    ExistEdgeFolder(path, profileFolder);
-                    break;
-
-
-                case OSList.MacOS:
-                    path = "~/Library/Application Support/microsoft-edge/";
-                    ExistEdgeFolder(path, profileFolder);
-                    break;
-
-                case OSList.Linux:
-                    path = "~/.config/microsoft-edge/";
-                    ExistEdgeFolder(path, profileFolder);
-                    break;
-
-                default:
-                    Console.WriteLine("The selected profile doesn't exist, insert a valid profile or leave it empty");
-                    Console.ReadKey();
-                    throw new ProfileNotFound("Profile " + profileFolder + " not found");
-
-            }
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\User Data\\";
+            ExistEdgeFolder(path, profileFolder);
             return path;
 
         }
@@ -224,25 +197,6 @@ namespace RewardsEdge
                         throw new InvalidPlatform("This Windows version is not supported");
 
                 }
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                currentOS = OSList.MacOS;
-                toRet = "mac64";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                // TODO test if it works and if return "linux64" if the architecture is arm64
-                if (Environment.Is64BitOperatingSystem)
-                {
-                    currentOS = OSList.Linux;
-                    toRet = "linux64";
-                }
-                else
-                {
-                    throw new InvalidPlatform("This Linux version is not supported");
-                }
-
             }
             else
             {
