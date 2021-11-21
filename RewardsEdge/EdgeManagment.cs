@@ -39,6 +39,11 @@ namespace RewardsEdge
         public static OSList currentOS { get; private set; }
 
 
+        /**
+         * <summary>Check if the passed folder exists and consequentially if edge folder exists too</summary>
+         * <param name="path"> The edge data path, usually in %localappdata%\Microsoft\Edge\User Data</param>
+         * <param name="profileFolder"> The folder to check if it's present</param>
+         */
         private static void ExistEdgeFolder(string path, string profileFolder)
         {
             if (!Directory.Exists(path))
