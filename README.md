@@ -1,5 +1,5 @@
 # RewardsEdge
-An application written in C# with the [Selenium library](https://www.selenium.dev/) that resolves automatically quizzes and researches on [Microsoft rewards](https://account.microsoft.com/rewards/) to earn points.  
+An application for Windows written in C# with the [Selenium library](https://www.selenium.dev/) that resolves automatically quizzes and researches on [Microsoft rewards](https://account.microsoft.com/rewards/) to earn points.  
 
 
 ## Requirements
