@@ -38,9 +38,17 @@ namespace RewardsEdge
     class EdgeManagment
     {
 
+        /**
+         * <summary> Save the current OS (and architecture) in use</summary>
+         */
         public static OSList currentOS { get; private set; }
 
 
+        /**
+         * <summary>Check if the passed folder exists</summary>
+         * <param name="path"> The path where look for the folder (folder not included in the path) </param>
+         * <param name="profileFolder"> The folder </param>
+         */
         private static void ExistEdgeFolder(string path, string profileFolder)
         {
             if (!Directory.Exists(path))
@@ -55,6 +63,7 @@ namespace RewardsEdge
         /**
          * <summary> Check if the user exists, if it doesn't exist it will execute <see cref="ExistEdgeFolder(string, string)">ExistEdgeFolder</see> function </summary>
          * <param name="profileFolder"> </param>
+         * <returns> The path where is located the wanted folder (wanted folder not included in the path) </returns>
          */
         private static string ResolveEdgeFolder(string profileFolder)
         {
@@ -92,6 +101,7 @@ namespace RewardsEdge
 
         /** <summary>Elaborates the given arguments. </summary>
          * <param name="args"> The array of arguments, it must have the same structure of the args passed in <see cref="Main(string[])">Main</see>. </param>
+         * <returns> returns in this order: the profile folder to use, the edge path (depends from OS), the driver path</returns>
          */
         public static Tuple<string, string, string> Arguments(string[] args)
         {
