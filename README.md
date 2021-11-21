@@ -1,9 +1,16 @@
 # RewardsEdge
-An application for Windows written in C# with the [Selenium library](https://www.selenium.dev/) that resolves automatically quizzes and researches on [Microsoft rewards](https://account.microsoft.com/rewards/) to earn points.  
+An application for Windows written in C# with the [Selenium library](https://www.selenium.dev/) and that resolves automatically quizzes and researches on [Microsoft rewards](https://account.microsoft.com/rewards/) to earn points.  
 
 
 ## Requirements
   - Microsoft Edge based on Chromium
+
+## Dependencies
+  - [Selenium.WebDriver 3.141.0](https://www.nuget.org/packages/Selenium.WebDriver/3.141.0?_src=template)
+  - [Microsoft.Edge.SeleniumTools](https://www.nuget.org/packages/Microsoft.Edge.SeleniumTools/3.141.2?_src=template)
+  - [DotNetSeleniumExtras.WaitHelpers](https://www.nuget.org/packages/DotNetSeleniumExtras.WaitHelpers/3.11.0?_src=template)
+  - [System.IO.Compression](https://www.nuget.org/packages/System.IO.Compression/4.3.0?_src=template)
+  - [System.IO.Compression.ZipFile](https://www.nuget.org/packages/System.IO.Compression.ZipFile/4.3.0?_src=template)
 
 ## Arguments (optional)
 
