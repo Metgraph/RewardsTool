@@ -477,11 +477,6 @@ namespace RewardsEdge
 
         }
 
-        public void Close()
-        {
-
-        }
-
         public static void Main(string[] args)
         {
             // manage arguments
