@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
-
+using System.Diagnostics;
 
 namespace RewardsEdge
 {
@@ -169,7 +169,7 @@ namespace RewardsEdge
 
         /**
          * <summary> Click the webElement when possible. </summary>
-         * It's used to avoid errors when trying to click.
+         * It's used to avoid errors when trying to click. There is a timeout set to 5 seconds
          * <param name="we"> The webElement to click. </param>
          */
         private static void Click(IWebElement we)
@@ -181,8 +181,10 @@ namespace RewardsEdge
             }
             catch (WebDriverTimeoutException e)
             {
-                Console.WriteLine("TIMEOUT ERROR: "+ e);
-                driver.Close();
+                Console.WriteLine("TIMEOUT ERROR: "+ e +"\nElement not found: "+we.ToString()+"\nPress a key to terminate the program");
+                driver.Quit();
+                Console.ReadKey();
+                Environment.Exit(-1);
             }
         }
 
@@ -469,13 +471,16 @@ namespace RewardsEdge
             {
                 driver.FindElement(By.XPath("//a[@id='signinlinkhero']")).Click();
             }
-            catch (NoSuchElementException e)
+            catch (NoSuchElementException)
             {
-                Console.WriteLine("LOGIN ERROR: "+e);
             }
 
         }
-                      
+
+        public void Close()
+        {
+
+        }
 
         public static void Main(string[] args)
         {
@@ -543,7 +548,7 @@ namespace RewardsEdge
             driver.Url = "https://account.microsoft.com/rewards/";
 
             Login();
-
+            Click(driver.FindElement(By.XPath("//script")));
             bool doPunchCard = true;
             //the code is executed twice so if one or more cards have been missed they can be resolved again
             Console.WriteLine("Starting cards");
