@@ -174,8 +174,16 @@ namespace RewardsEdge
          */
         private static void Click(IWebElement we)
         {
-            wait.Until(e => we.Displayed && we.Enabled ? we : null);
-            we.Click();
+            try
+            {
+                wait.Until(e => we.Displayed && we.Enabled ? we : null);
+                we.Click();
+            }
+            catch (WebDriverTimeoutException e)
+            {
+                Console.WriteLine("TIMEOUT ERROR: "+ e);
+                driver.Close();
+            }
         }
 
         /**
@@ -461,9 +469,9 @@ namespace RewardsEdge
             {
                 driver.FindElement(By.XPath("//a[@id='signinlinkhero']")).Click();
             }
-            catch (NoSuchElementException)
+            catch (NoSuchElementException e)
             {
-
+                Console.WriteLine("LOGIN ERROR: "+e);
             }
 
         }
@@ -506,13 +514,13 @@ namespace RewardsEdge
                 // probably the error is caused by an already open session of edge with the selected profile
                 if (File.Exists("msedgedriver.exe"))
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine("ERROR: "+e);
                     MessageBox.Show("Try to close all Microsoft Edge sessions and to restart the programma", "Impossible to open Edge with the selected profile", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 // install the driver
                 else
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine("ERROR: " + e);
                     EdgeManagment.DownloadDriver(path);
                     MessageBox.Show("The program will restart, if it will loop close the app", "The new driver has been installed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Application.Restart();
@@ -522,7 +530,7 @@ namespace RewardsEdge
             // raised when driver can't be used with the installed edge version, the correct driver version will be downloaded
             catch (InvalidOperationException e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine("ERROR: " + e);
                 EdgeManagment.DownloadDriver(path);
                 MessageBox.Show("The program will restart, if it will loop close the app", "The new driver has been installed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Application.Restart();
@@ -537,7 +545,6 @@ namespace RewardsEdge
             Login();
 
             bool doPunchCard = true;
-
             //the code is executed twice so if one or more cards have been missed they can be resolved again
             Console.WriteLine("Starting cards");
             for (int i = 0; i < 2; i++)
