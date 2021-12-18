@@ -28,6 +28,7 @@ An application for Windows written in C# with the [Selenium library](https://www
     
 ## Errors
 It may occur that an error interrupts the program, in this case close Edge and restart the program. If an error also occurs in second attempt [report it](https://github.com/Metgraph/RewardsEdge/issues).
+
 After reported the error you can try to complete the cards manually and check if the next day the problem reoccurs (in this case the problem is correlated with a single card)
 
 ## Supported nation
