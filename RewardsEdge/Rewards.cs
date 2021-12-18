@@ -536,6 +536,7 @@ namespace RewardsEdge
             //set the profile to use
             options.AddArgument("user-data-dir=" + userDataDir);
             options.AddArguments("profile-directory=" + profileFolder);
+            options.AddArgument("--start-maximized");
 
             // Create an Edge session
             try
