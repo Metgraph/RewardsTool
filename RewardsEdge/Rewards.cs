@@ -22,7 +22,7 @@ namespace RewardsEdge
         private static IWebDriver driver;
         private static EdgeOptions options;
 
-        
+
 
         /**
          * <summary> Takes and complete the daily cards in the page. </summary>
@@ -174,19 +174,25 @@ namespace RewardsEdge
          */
         private static void Click(IWebElement we)
         {
+#if DEBUG
+            wait.Until(e => we.Displayed && we.Enabled ? we : null);
+            we.Click();
+#else
             try
             {
-                wait.Until(e => we.Displayed && we.Enabled ? we : null);
-                we.Click();
+            wait.Until(e => we.Displayed && we.Enabled ? we : null);
+            we.Click();
             }
             catch (WebDriverTimeoutException e)
             {
-                Console.WriteLine("TIMEOUT ERROR: "+ e +"\nElement not found: "+we.ToString()+"\nPress a key to terminate the program");
+                Console.WriteLine("TIMEOUT ERROR: "+ e +"\nElement not found: "+ generateXPATH(we) + "\nPress a key to terminate the program");
                 driver.Quit();
                 Console.ReadKey();
                 Environment.Exit(-1);
             }
+#endif
         }
+
 
         /**
          * <summary> Click on a pool option to complete the promotion. </summary>
@@ -477,6 +483,33 @@ namespace RewardsEdge
 
         }
 
+        private static string generateXPATH(IWebElement childElement, string current = "")
+        {
+            string childTag = childElement.TagName;
+            if (childTag == "html")
+            {
+                return "/html[1]" + current;
+            }
+            IWebElement parentElement = childElement.FindElement(By.XPath(".."));
+            ReadOnlyCollection<IWebElement> childrenElements = parentElement.FindElements(By.XPath("*"));
+            int count = 0;
+            for (int i = 0; i < childrenElements.Count; i++)
+            {
+                Console.WriteLine(childrenElements[i].TagName);
+                IWebElement childrenElement = childrenElements[i];
+                string childrenElementTag = childrenElement.TagName;
+                if (childTag == childrenElementTag)
+                {
+                    count++;
+                }
+                if (childElement == childrenElement)
+                {
+                    return generateXPATH(parentElement, "/" + childTag + "[" + count + "]" + current);
+                }
+            }
+            return null;
+        }
+
         public static void Main(string[] args)
         {
             // manage arguments
@@ -503,6 +536,7 @@ namespace RewardsEdge
             //set the profile to use
             options.AddArgument("user-data-dir=" + userDataDir);
             options.AddArguments("profile-directory=" + profileFolder);
+            options.AddArgument("--start-maximized");
 
             // Create an Edge session
             try
@@ -514,7 +548,7 @@ namespace RewardsEdge
                 // probably the error is caused by an already open session of edge with the selected profile
                 if (File.Exists("msedgedriver.exe"))
                 {
-                    Console.WriteLine("ERROR: "+e);
+                    Console.WriteLine("ERROR: " + e);
                     MessageBox.Show("Try to close all Microsoft Edge sessions and to restart the programma", "Impossible to open Edge with the selected profile", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 // install the driver
@@ -543,7 +577,8 @@ namespace RewardsEdge
             driver.Url = "https://account.microsoft.com/rewards/";
 
             Login();
-            Click(driver.FindElement(By.XPath("//script")));
+            Console.WriteLine(generateXPATH(driver.FindElement(By.XPath("//div[@id='daily-sets']//div[@class='c-card-content']"))));
+            //Click(driver.FindElement(By.XPath("//script")));
             bool doPunchCard = true;
             //the code is executed twice so if one or more cards have been missed they can be resolved again
             Console.WriteLine("Starting cards");
