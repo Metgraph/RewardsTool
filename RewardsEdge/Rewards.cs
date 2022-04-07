@@ -116,12 +116,12 @@ namespace RewardsEdge {
                 Console.WriteLine("Punch card not found");
                 return;
             }
-            Click(punchCard.FindElement(By.XPath("//button[contains(@class, 'c-glyph') and contains(@class, 'c-action-toggle')]")));
+            //Click(punchCard.FindElement(By.XPath("//button[contains(@class, 'c-glyph') and contains(@class, 'c-action-toggle')]")));
 
             int i_section = 0;
             var sections = punchCard.FindElements(By.XPath(".//section"));
             // for each button there is a punch card
-            foreach (var button in punchCard.FindElements(By.XPath(".//mee-carousel/div/div[1]/div/button"))) {
+            foreach (var button in punchCard.FindElements(By.XPath(".//button[@role='tab']"))) {
                 Click(button);
                 IWebElement section = sections[i_section++];
 
