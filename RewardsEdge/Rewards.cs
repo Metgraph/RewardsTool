@@ -9,33 +9,29 @@ using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace RewardsEdge
-{
+namespace RewardsEdge {
 
 
     /**
      * <summary> Where is located the entire code of automation of Microsoft Rewards. </summary>
      */
-    class Rewards
-    {
+    class Rewards {
         private static WebDriverWait wait;
         private static IWebDriver driver;
         private static EdgeOptions options;
+        public const string HOMEURL = "https://rewards.microsoft.com/";
 
 
 
         /**
          * <summary> Takes and complete the daily cards in the page. </summary>
          */
-        private static void DailyCards()
-        {
+        private static void DailyCards() {
             // get the 3 daily cards
             var listDaily = driver.FindElements(By.XPath("//div[@id='daily-sets']//div[@class='c-card-content']"));
 
-            for (int i = 0; i < 3; i++)
-            {
-                if (!IsCardDone(listDaily[i]))
-                {
+            for (int i = 0; i < 3; i++) {
+                if (!IsCardDone(listDaily[i])) {
                     // click on the card
                     Click(listDaily[i].FindElement(By.XPath(".//div[@class='actionLink x-hidden-vp1']/span")));
                     driver.SwitchTo().Window(driver.WindowHandles.Last());
@@ -52,14 +48,11 @@ namespace RewardsEdge
         /**
          * <summary> Takes and complete the other cards.</summary>
          */
-        private static void OtherCards()
-        {
+        private static void OtherCards() {
             // get the other cards
             var listOthers = driver.FindElements(By.XPath("//mee-card-group[@id='more-activities']//div[@class='c-card-content']"));
-            foreach (var other in listOthers)
-            {
-                if (!IsCardDone(other))
-                {
+            foreach (var other in listOthers) {
+                if (!IsCardDone(other)) {
                     // click on the card
                     Click(other.FindElement(By.XPath(".//div[@class='actionLink x-hidden-vp1']")));
                     driver.SwitchTo().Window(driver.WindowHandles.Last());
@@ -78,20 +71,17 @@ namespace RewardsEdge
          * <param name="punchcard"> The punch card to complete. </param>
          * <param name="sleep"> Time to wait after completed a promotion. </param>
          */
-        private static void ResolvePunchCard(IWebElement punchcard, int sleep)
-        {
+        private static void ResolvePunchCard(IWebElement punchcard, int sleep) {
             Console.WriteLine("In punch card");
             // open the punch card page
             //punchcard.FindElement(By.XPath(".//span[@class='pointLink ng-binding ng-scope']")).Click();
             Click(punchcard.FindElement(By.XPath(".//span[@class='pointLink ng-binding ng-scope']")));
             driver.SwitchTo().Window(driver.WindowHandles.Last());
             // for each quiz in the card
-            foreach (var toClick in driver.FindElements(By.XPath("//button[@class='btn-primary btn win-color-border-0 card-button-height pull-left margin-right-24 padding-left-24 padding-right-24']/preceding::a[1]")))
-            {
+            foreach (var toClick in driver.FindElements(By.XPath("//button[@class='btn-primary btn win-color-border-0 card-button-height pull-left margin-right-24 padding-left-24 padding-right-24']/preceding::a[1]"))) {
                 // if the button will not redirect to a bing page stop the program
                 string stringUrl = toClick.GetAttribute("href");
-                if (!stringUrl.Contains("https%3A%2F%2Faka.ms") && !stringUrl.Contains("https%3A%2F%2Fwww.bing.com"))
-                {
+                if (!stringUrl.Contains("https%3A%2F%2Faka.ms") && !stringUrl.Contains("https%3A%2F%2Fwww.bing.com")) {
                     Console.WriteLine("exit punchcard");
                     break;
                 }
@@ -114,43 +104,38 @@ namespace RewardsEdge
          * to complete a single punch card the method uses <see cref="ResolvePunchCard(IWebElement, int)">ResolvePunchCard</see>.
          * <param name="sleep"> Time to wait after completed a promotion. </param>
          */
-        private static void PunchCard(int sleep = 1000)
-        {
+        private static void PunchCard(int sleep = 1000) {
             Console.WriteLine("In punchcard");
             IWebElement punchCard;
             // try to take the punch card
-            try
-            {
+            try {
                 punchCard = driver.FindElement(By.XPath("//div[@class='c-carousel f-auto-play f-multi-slide f-scrollable-next f-scrollable-previous']"));
 
             }
-            catch (NoSuchElementException)
-            {
+            catch (NoSuchElementException) {
                 Console.WriteLine("Punch card not found");
                 return;
             }
+            Click(punchCard.FindElement(By.XPath("//button[contains(@class, 'c-glyph') and contains(@class, 'c-action-toggle')]")));
 
             int i_section = 0;
-            var sections = punchCard.FindElements(By.XPath("//section"));
+            var sections = punchCard.FindElements(By.XPath(".//section"));
             // for each button there is a punch card
-            foreach (var button in punchCard.FindElements(By.XPath("//mee-carousel/div/div[1]/div/button")))
-            {
+            foreach (var button in punchCard.FindElements(By.XPath(".//mee-carousel/div/div[1]/div/button"))) {
                 Click(button);
                 IWebElement section = sections[i_section++];
 
                 Console.WriteLine("Name: " + section.FindElement(By.XPath(".//p[@class='c-subheading ng-binding']")).Text);
                 bool completed = true;
-                foreach (var check in section.FindElements(By.XPath(".//div[@class='icon-container ng-scope']/span/span")))
-                {
-                    if (check.GetAttribute("class") != "mee-icon mee-icon-StatusCircleOuter checkmark ng-scope")
-                    {
+                foreach (var check in section.FindElements(By.XPath(".//div[@class='icon-container ng-scope']/span/span"))) {
+                    if (check.GetAttribute("class") != "mee-icon mee-icon-StatusCircleOuter checkmark ng-scope") {
                         completed = false;
                         break;
                     }
                 }
                 // if punch card isn't completed
-                if (!completed)
-                {
+
+                if (!completed) {
                     ResolvePunchCard(section, sleep);
                 }
 
@@ -162,8 +147,7 @@ namespace RewardsEdge
          * <summary> Check if card is completed. </summary>
          * <param name="card"> The card to be checked. </param>
          */
-        private static bool IsCardDone(IWebElement card)
-        {
+        private static bool IsCardDone(IWebElement card) {
             return card.FindElements(By.XPath(".//span[@class='mee-icon mee-icon-SkypeCircleCheck']")).Count > 0;
         }
 
@@ -172,8 +156,7 @@ namespace RewardsEdge
          * It's used to avoid errors when trying to click. There is a timeout set to 5 seconds
          * <param name="we"> The webElement to click. </param>
          */
-        private static void Click(IWebElement we)
-        {
+        private static void Click(IWebElement we) {
 #if DEBUG
             wait.Until(e => we.Displayed && we.Enabled ? we : null);
             we.Click();
@@ -198,8 +181,7 @@ namespace RewardsEdge
          * <summary> Click on a pool option to complete the promotion. </summary>
          * <param name="poolOptions"> All the pool options</param>
          */
-        private static void ResolvePool(ReadOnlyCollection<IWebElement> poolOptions)
-        {
+        private static void ResolvePool(ReadOnlyCollection<IWebElement> poolOptions) {
             Click(poolOptions[0].FindElement(By.XPath(".//div[@id='btoption0']")));
             Thread.Sleep(500);
             driver.Close();
@@ -211,30 +193,26 @@ namespace RewardsEdge
          * It's recommended to set an high sleep time because the quiz overlay not appear immediatly and becauese in case it is a simple resarch if the time the browser stay in the page is short, it may not award points 
          * <param name="sleep"> Time to wait before checking which type it is</param>
          */
-        private static void ResolvePromotion(int sleep = 3500)
-        {
+        private static void ResolvePromotion(int sleep = 3500) {
             // wait before analyze page, so page has the time to load and in case it isn't a quiz the time to get the card as completed
             Thread.Sleep(sleep);
             // If there is no quiz exit from function
             var overlay = driver.FindElements(By.XPath("//div[@class='btOverlay']"));
-            if (overlay.Count == 0)
-            {
+            if (overlay.Count == 0) {
                 driver.Close();
                 return;
             }
 
             // if there is a pool
             var findPoll = overlay[0].FindElements(By.XPath(".//div[@class='bt_poll']"));
-            if (findPoll.Count > 0)
-            {
+            if (findPoll.Count > 0) {
                 ResolvePool(findPoll);
                 return;
             }
 
             // if there is a quiz
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-            if ((bool)js.ExecuteScript("return _w.hasOwnProperty('rewardsQuizRenderInfo')"))
-            {
+            if ((bool)js.ExecuteScript("return _w.hasOwnProperty('rewardsQuizRenderInfo')")) {
                 var findQuiz = overlay[0].FindElements(By.XPath(".//div[@id='quizWelcomeContainer']"));
                 if (findQuiz.Count > 0)
                     Click(driver.FindElement(By.XPath(".//input[@id='rqStartQuiz']")));
@@ -249,19 +227,15 @@ namespace RewardsEdge
          * Supported quiz: <see cref="MultipleAnswerQuiz(int)">multiple answer quiz</see>, <see cref="ThisOrThat(int)">this or that</see> and <see cref="SingleAnswerQuiz(int)">single answer quiz</see>.
          * <param name="sleep"> Sleep parameter to pass to the other functions. </param>
          */
-        private static void DoQuiz(int sleep = 3500)
-        {
+        private static void DoQuiz(int sleep = 3500) {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-            if ((bool)js.ExecuteScript("return _w.rewardsQuizRenderInfo.isListicleQuizType"))
-            {
+            if ((bool)js.ExecuteScript("return _w.rewardsQuizRenderInfo.isListicleQuizType")) {
                 MultipleAnswerQuiz(sleep);
             }
-            else if ((bool)js.ExecuteScript("return _w.rewardsQuizRenderInfo.isWOTQuizType"))
-            {
+            else if ((bool)js.ExecuteScript("return _w.rewardsQuizRenderInfo.isWOTQuizType")) {
                 ThisOrThat();
             }
-            else
-            {
+            else {
                 SingleAnswerQuiz(sleep);
             }
 
@@ -271,15 +245,12 @@ namespace RewardsEdge
          * <summary> Complete the multiple answer quiz</summary>
          * <param name="sleep"> Time to wait after have been completed a sub-quiz</param>
          */
-        private static void MultipleAnswerQuiz(int sleep)
-        {
+        private static void MultipleAnswerQuiz(int sleep) {
             var maxAndCurrent = getMaxAndCurrent();
             Console.WriteLine("current: " + maxAndCurrent.Current + ", max: " + maxAndCurrent.Max);
-            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++)
-            {
+            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++) {
                 // 8 possible answers
-                for (int j = 0; j < 8; j++)
-                {
+                for (int j = 0; j < 8; j++) {
                     var slide = driver.FindElement(By.XPath("//div[@class='btOverlay']//div[@class='slide']/div[@id]"));
                     Click(slide);
                     Thread.Sleep(100);
@@ -288,8 +259,7 @@ namespace RewardsEdge
                     if (temp.Count > 0)
                         break;
                     // if this is the last sub-quiz there is another way to recognize if quiz is ended
-                    else if (i == maxAndCurrent.Max)
-                    {
+                    else if (i == maxAndCurrent.Max) {
                         var temp2 = driver.FindElements(By.XPath("//div[@class='btOverlay']//div[@class='headerMessage']"));
                         if (temp2.Count > 0)
                             break;
@@ -303,16 +273,13 @@ namespace RewardsEdge
          * <summary> Complete the single answer quiz</summary>
          * <param name="sleep"> Time to wait after have been completed a sub-quiz</param>
          */
-        private static void SingleAnswerQuiz(int sleep)
-        {
+        private static void SingleAnswerQuiz(int sleep) {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             var maxAndCurrent = getMaxAndCurrent(js);
             long numOptions = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.numberOfOptions");
-            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++)
-            {
+            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++) {
                 // 4 possible answers
-                for (long j = 0; j < numOptions; j++)
-                {
+                for (long j = 0; j < numOptions; j++) {
                     var slide = driver.FindElement(By.XPath("//div[@class='btOverlay']//input[@class='rqOption']"));
                     Click(slide);
                     Thread.Sleep(100);
@@ -328,12 +295,10 @@ namespace RewardsEdge
         /**
          * <summary> Complete the "this or that" quiz</summary>
          */
-        private static void ThisOrThat()
-        {
+        private static void ThisOrThat() {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             var maxAndCurrent = getMaxAndCurrent(js);
-            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++)
-            {
+            for (long i = maxAndCurrent.Current; i <= maxAndCurrent.Max; i++) {
                 // this value will be used to calculate which is the correct answer
                 string IG = driver.FindElement(By.XPath("//span[@id='nc_iid']")).GetAttribute("_ig");
                 // get the correct answer value
@@ -354,8 +319,7 @@ namespace RewardsEdge
          * <summary> Get the maximus and the current points in a quiz.</summary>
          * <returns> Maximus and the current points in a quiz.</returns>
          */
-        private static (long Max, long Current) getMaxAndCurrent()
-        {
+        private static (long Max, long Current) getMaxAndCurrent() {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             return getMaxAndCurrent(js);
         }
@@ -365,8 +329,7 @@ namespace RewardsEdge
          * <param name="js"> The js executor to use</param>
          * <returns> Maximum and the current points in a quiz.</returns>
          */
-        private static (long Max, long Current) getMaxAndCurrent(IJavaScriptExecutor js)
-        {
+        private static (long Max, long Current) getMaxAndCurrent(IJavaScriptExecutor js) {
             long max = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.maxQuestions");
             long curr = (long)js.ExecuteScript("return _w.rewardsQuizRenderInfo.currentQuestionNumber");
             return (Max: max, Current: curr);
@@ -380,11 +343,9 @@ namespace RewardsEdge
          * <param name="IG"> IG value. </param>
          * <returns> The correct answer value.</returns>
          */
-        private static string ResolveCorrectAnswer(string dataOption, string IG)
-        {
+        private static string ResolveCorrectAnswer(string dataOption, string IG) {
             int t = 0;
-            foreach (char c in dataOption)
-            {
+            foreach (char c in dataOption) {
                 t += c;
             }
 
@@ -399,38 +360,33 @@ namespace RewardsEdge
          * <param name="length"> How long the research string must be.</param>
          * <param name="sleep"> Time to wait after a research</param>
          */
-        private static void BingResearches(long pointForSearch, bool closeBrowserAtEnd = false, int length = 4, int sleep = 1000)
-        {
+        private static void BingResearches(long pointForSearch, bool closeBrowserAtEnd = false, int length = 4, int sleep = 1000) {
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             // get how many searches remain for desktop
             long maxPointPC = (long)js.ExecuteScript("return dashboard.userStatus.counters.pcSearch[0].pointProgressMax");
             maxPointPC += (long)js.ExecuteScript("return dashboard.userStatus.counters.pcSearch[1].pointProgressMax");
             long pointPC = (long)js.ExecuteScript("return dashboard.userStatus.counters.pcSearch[0].pointProgress");
-            try
-            {
+            try {
                 // get how many searches remain for mobile
                 long maxPointMobile = (long)js.ExecuteScript("return dashboard.userStatus.counters.mobileSearch[0].pointProgressMax");
                 pointPC += (long)js.ExecuteScript("return dashboard.userStatus.counters.pcSearch[1].pointProgress");
                 long pointMobile = (long)js.ExecuteScript("return dashboard.userStatus.counters.mobileSearch[0].pointProgress");
             }
-            catch (WebDriverException)
-            {
+            catch (WebDriverException) {
             }
 
             RandomStringGen rsg = new RandomStringGen();
             // Desktop Edge searches
-            for (long i = 0; i < maxPointPC - pointPC; i += pointForSearch)
-            {
+            for (long i = 0; i < maxPointPC - pointPC; i += pointForSearch) {
                 driver.Navigate().GoToUrl("https://bing.com/search?q=" + rsg.GenString(length));
                 Thread.Sleep(sleep);
             }
 
 
             // Mobile searches (the code generates error if not availbe)
-            try
-            {
-                if (driver.Url != "https://account.microsoft.com/rewards/")
-                    driver.Navigate().GoToUrl("https://account.microsoft.com/rewards/");
+            try {
+                if (driver.Url != HOMEURL)
+                    driver.Navigate().GoToUrl(HOMEURL);
 
                 long maxPointMobile = (long)js.ExecuteScript("return dashboard.userStatus.counters.mobileSearch[0].pointProgressMax");
                 pointPC += (long)js.ExecuteScript("return dashboard.userStatus.counters.pcSearch[1].pointProgress");
@@ -444,8 +400,7 @@ namespace RewardsEdge
                 // open browser with different user agent to emulate mobile searches
                 options.AddArgument("--user-agent=Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.101 Mobile Safari/537.36");
                 driver = new EdgeDriver(options);
-                for (long i = 0; i < pointMobileLeft; i += pointForSearch)
-                {
+                for (long i = 0; i < pointMobileLeft; i += pointForSearch) {
                     driver.Navigate().GoToUrl("https://bing.com/search?q=" + rsg.GenString(length));
                     Thread.Sleep(sleep);
                 }
@@ -455,13 +410,11 @@ namespace RewardsEdge
 
 
             }
-            catch (WebDriverException e)
-            {
+            catch (WebDriverException e) {
                 Console.WriteLine("mobile researches not enabled on this level - " + e);
             }
             // not reopen the browser if not requested
-            if (!closeBrowserAtEnd)
-            {
+            if (!closeBrowserAtEnd) {
                 driver = new EdgeDriver(options);
             }
 
@@ -471,65 +424,53 @@ namespace RewardsEdge
          * <summary> If not logged click on button login.</summary>
          * you must have been logged before, so that after have clicked the button the site will not request account credentials.
          */
-        private static void Login()
-        {
-            try
-            {
+        private static void Login() {
+            try {
                 driver.FindElement(By.XPath("//a[@id='signinlinkhero']")).Click();
             }
-            catch (NoSuchElementException)
-            {
+            catch (NoSuchElementException) {
             }
 
         }
 
-        private static string generateXPATH(IWebElement childElement, string current = "")
-        {
+        private static string generateXPATH(IWebElement childElement, string current = "") {
             string childTag = childElement.TagName;
-            if (childTag == "html")
-            {
+            if (childTag == "html") {
                 return "/html[1]" + current;
             }
             IWebElement parentElement = childElement.FindElement(By.XPath(".."));
             ReadOnlyCollection<IWebElement> childrenElements = parentElement.FindElements(By.XPath("*"));
             int count = 0;
-            for (int i = 0; i < childrenElements.Count; i++)
-            {
+            for (int i = 0; i < childrenElements.Count; i++) {
                 Console.WriteLine(childrenElements[i].TagName);
                 IWebElement childrenElement = childrenElements[i];
                 string childrenElementTag = childrenElement.TagName;
-                if (childTag == childrenElementTag)
-                {
+                if (childTag == childrenElementTag) {
                     count++;
                 }
-                if (childElement == childrenElement)
-                {
+                if (childElement == childrenElement) {
                     return generateXPATH(parentElement, "/" + childTag + "[" + count + "]" + current);
                 }
             }
             return null;
         }
 
-        public static void Main(string[] args)
-        {
+        public static void Main(string[] args) {
             // manage arguments
             string profileFolder, path, userDataDir;
-            try
-            {
+            try {
                 Tuple<string, string, string> paramsRet = EdgeManagment.Arguments(args);
                 profileFolder = paramsRet.Item1;
                 userDataDir = paramsRet.Item2;
                 path = paramsRet.Item3;
             }
-            catch (ProfileNotFound e)
-            {
+            catch (ProfileNotFound e) {
                 MessageBox.Show("Check if the selected profile exists", e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // set Edge chromium
-            options = new EdgeOptions
-            {
+            options = new EdgeOptions {
                 UseChromium = true
             };
 
@@ -539,21 +480,17 @@ namespace RewardsEdge
             options.AddArgument("--start-maximized");
 
             // Create an Edge session
-            try
-            {
+            try {
                 driver = new EdgeDriver(path, options);
             }
-            catch (WebDriverException e)
-            {
+            catch (WebDriverException e) {
                 // probably the error is caused by an already open session of edge with the selected profile
-                if (File.Exists("msedgedriver.exe"))
-                {
+                if (File.Exists("msedgedriver.exe")) {
                     Console.WriteLine("ERROR: " + e);
                     MessageBox.Show("Try to close all Microsoft Edge sessions and to restart the programma", "Impossible to open Edge with the selected profile", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 // install the driver
-                else
-                {
+                else {
                     Console.WriteLine("ERROR: " + e);
                     EdgeManagment.DownloadDriver(path);
                     MessageBox.Show("The program will restart, if it will loop close the app", "The new driver has been installed", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -562,8 +499,7 @@ namespace RewardsEdge
                 }
             }
             // raised when driver can't be used with the installed edge version, the correct driver version will be downloaded
-            catch (InvalidOperationException e)
-            {
+            catch (InvalidOperationException e) {
                 Console.WriteLine("ERROR: " + e);
                 EdgeManagment.DownloadDriver(path);
                 MessageBox.Show("The program will restart, if it will loop close the app", "The new driver has been installed", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -574,7 +510,7 @@ namespace RewardsEdge
             wait = new WebDriverWait(driver, new TimeSpan(0, 0, 5));
 
             // go to the rewards home page
-            driver.Url = "https://rewards.microsoft.com/";
+            driver.Url = HOMEURL;
 
             Login();
             Console.WriteLine(generateXPATH(driver.FindElement(By.XPath("//div[@id='daily-sets']//div[@class='c-card-content']"))));
@@ -582,12 +518,10 @@ namespace RewardsEdge
             bool doPunchCard = true;
             //the code is executed twice so if one or more cards have been missed they can be resolved again
             Console.WriteLine("Starting cards");
-            for (int i = 0; i < 2; i++)
-            {
+            for (int i = 0; i < 2; i++) {
                 DailyCards();
                 OtherCards();
-                if (doPunchCard)
-                {
+                if (doPunchCard) {
                     PunchCard();
                 }
             }
