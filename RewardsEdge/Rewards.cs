@@ -574,7 +574,7 @@ namespace RewardsEdge
             wait = new WebDriverWait(driver, new TimeSpan(0, 0, 5));
 
             // go to the rewards home page
-            driver.Url = "https://account.microsoft.com/rewards/";
+            driver.Url = "https://rewards.microsoft.com/";
 
             Login();
             Console.WriteLine(generateXPATH(driver.FindElement(By.XPath("//div[@id='daily-sets']//div[@class='c-card-content']"))));
