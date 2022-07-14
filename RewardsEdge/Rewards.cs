@@ -253,7 +253,7 @@ namespace RewardsEdge {
                 for (int j = 0; j < 8; j++) {
                     var slide = driver.FindElement(By.XPath("//div[@class='btOverlay']//div[@class='slide']/div[@id]"));
                     Click(slide);
-                    Thread.Sleep(100);
+                    Thread.Sleep(400);
                     // when all the correct answers have been selected this div tag with this class will appear
                     var temp = driver.FindElements(By.XPath("//div[@class='btOverlay']//div[@class='b_promtxt rqQPanel b_hide']"));
                     if (temp.Count > 0)
@@ -282,7 +282,7 @@ namespace RewardsEdge {
                 for (long j = 0; j < numOptions; j++) {
                     var slide = driver.FindElement(By.XPath("//div[@class='btOverlay']//input[@class='rqOption']"));
                     Click(slide);
-                    Thread.Sleep(100);
+                    Thread.Sleep(400);
                     // check if i selected the correct answer
                     if (driver.FindElements(By.XPath("//div[@class='btOverlay']//input[@class='rqOption correctAnswer']")).Count > 0)
                         break;
@@ -477,7 +477,9 @@ namespace RewardsEdge {
             //set the profile to use
             options.AddArgument("user-data-dir=" + userDataDir);
             options.AddArguments("profile-directory=" + profileFolder);
+#if !DEBUG
             options.AddArgument("--start-maximized");
+#endif
 
             // Create an Edge session
             try {
