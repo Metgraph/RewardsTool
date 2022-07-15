@@ -24,7 +24,7 @@ An application for Windows written in C# with the [Selenium library](https://www
 
 
 - **-u Profile**
-    - The program will open Microsoft Edge using the specified profile. If not specified the program will use the default profile
+    - The program will open Chrome using the specified profile. If not specified the program will use the default profile
     
 ## Errors
 It may occur that an error interrupts the program, in this case close Edge and restart the program. If an error also occurs in second attempt [report it](https://github.com/Metgraph/RewardsEdge/issues).
