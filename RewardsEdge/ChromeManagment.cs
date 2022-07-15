@@ -93,7 +93,7 @@ namespace RewardsEdge
                             _w = false;
                         }
                         break;
-                    case "-p":
+                    case "-u":
                         if (args.Length - 1 > i && args[i + 1][0] != '-')
                         {
                             profileFolder = args[++i];
@@ -102,7 +102,7 @@ namespace RewardsEdge
                         }
                         break;
 
-                    case "-f":
+                    case "-p":
                         if (args.Length - 1 > i && args[i + 1][0] != '-')
                         {
                             driverPath = args[++i];
