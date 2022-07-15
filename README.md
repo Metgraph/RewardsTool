@@ -1,4 +1,4 @@
-# RewardsEdge
+# RewardsTool
 An application for Windows written in C# with the [Selenium library](https://www.selenium.dev/) and that resolves automatically quizzes and researches on [Microsoft rewards](https://account.microsoft.com/rewards/) to earn points.  
 
 
