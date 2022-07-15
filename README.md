@@ -19,7 +19,7 @@ An application for Windows written in C# with the [Selenium library](https://www
     
 
   - **-p Path\of\folder**
-    - The program will install Microsoft Edge driver in the selected folder, you can put your driver in the folder if you want and the program will try to use it, but it will not be enabled to update the driver unleast you give the permission.  
+    - The program will install Chrome driver in the selected folder, you can put your driver in the folder if you want and the program will try to use it, but it will not be enabled to update the driver unleast you give the permission.  
     If not specified the programm will use the folder where is located
 
 
@@ -27,7 +27,7 @@ An application for Windows written in C# with the [Selenium library](https://www
     - The program will open Chrome using the specified profile. If not specified the program will use the default profile
     
 ## Errors
-It may occur that an error interrupts the program, in this case close Edge and restart the program. If an error also occurs in second attempt [report it](https://github.com/Metgraph/RewardsEdge/issues).
+It may occur that an error interrupts the program, in this case close Chrome and restart the program. If an error also occurs in second attempt [report it](https://github.com/Metgraph/RewardsTool/issues).
 
 After reported the error you can try to complete the cards manually and check if the next day the problem reoccurs (in this case the problem is correlated with a single card)
 
