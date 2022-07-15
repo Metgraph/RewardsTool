@@ -510,13 +510,9 @@ namespace RewardsEdge {
             wait = new WebDriverWait(driver, new TimeSpan(0, 0, 5));
 
             // go to the rewards home page
-            // idk why there is always an exception
-            try {
-                driver.Navigate().GoToUrl(HOMEURL);
-            }
-            catch (WebDriverException) {
-
-            }
+            // if sleep is removed an exception will arise
+            Thread.Sleep(500);
+            driver.Navigate().GoToUrl(HOMEURL);
             
 
             Login();
