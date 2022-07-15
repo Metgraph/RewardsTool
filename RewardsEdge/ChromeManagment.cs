@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Forms;
 using System.Security;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RewardsEdge
 {
@@ -114,6 +116,25 @@ namespace RewardsEdge
             return Tuple.Create(profileFolder, chromePath, driverPath);
         }
 
+        private static async Task<string> GetDriverVersion(string version) {
+            HttpClient httpClient = new HttpClient();
+            string driverVersion="";
+            bool loop;
+            do {
+                loop = true;
+                int pPos = version.LastIndexOf('.');
+                if (pPos >= 0) {
+                    loop = false;
+                    version = version.Substring(0, pPos);
+                }
+                var resp = await httpClient.GetAsync("https://chromedriver.storage.googleapis.com/LATEST_RELEASE" + (pPos >= 0 ? "_" + version : ""));
+                if(resp.IsSuccessStatusCode) {
+                    driverVersion = await resp.Content.ReadAsStringAsync();
+                    loop = false;
+                }
+            } while (loop);
+            return driverVersion;
+        }
 
         /**
          * <summary> Download the right driver version for Chrome.</summary>
@@ -124,7 +145,10 @@ namespace RewardsEdge
          */
         public static void DownloadDriver(string path)
         {
-            string version = GetChromeVersion();
+            string actualVersion = GetChromeVersion();
+            string version;
+            var task = GetDriverVersion(actualVersion);
+            version = task.Result;
             string req = "https://chromedriver.storage.googleapis.com/" + version + "/chromedriver_" + GetOSArch() + ".zip";
             string zipPath = Path.GetFullPath(path + "chromedriver_win32.zip");
             string exePath = Path.GetFullPath(path + "chromedriver.exe");
