@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Forms;
+using System.Security;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RewardsEdge
 {
@@ -16,7 +19,7 @@ namespace RewardsEdge
     }
 
     /**
-     * <summary> Exception to raise in case the program can't find the selected Microsoft Edge progile. </summary>
+     * <summary> Exception to raise in case the program can't find the selected Chrome progile. </summary>
      */
     class ProfileNotFound : Exception
     {
@@ -33,18 +36,18 @@ namespace RewardsEdge
     }
 
 
-    class EdgeManagment
+    class ChromeManagment
     {
 
         public static OSList currentOS { get; private set; }
 
 
         /**
-         * <summary>Check if the passed folder exists and consequentially if edge folder exists too</summary>
-         * <param name="path"> The edge data path, usually in %localappdata%\Microsoft\Edge\User Data</param>
+         * <summary>Check if the passed folder exists and consequentially if chrome folder exists too</summary>
+         * <param name="path"> The chrome data path, usually in %localappdata%\Google\Chrome\User Data</param>
          * <param name="profileFolder"> The folder to check if it's present</param>
          */
-        private static void ExistEdgeFolder(string path, string profileFolder)
+        private static void ExistChromeFolder(string path, string profileFolder)
         {
             if (!Directory.Exists(path))
             {
@@ -56,13 +59,13 @@ namespace RewardsEdge
 
 
         /**
-         * <summary> Check if the user exists, if it doesn't exist it will execute <see cref="ExistEdgeFolder(string, string)">ExistEdgeFolder</see> function </summary>
+         * <summary> Check if the user exists, if it doesn't exist it will execute <see cref="ExistChromeFolder(string, string)">ExistChromeFolder</see> function </summary>
          * <param name="profileFolder"> </param>
          */
-        private static string ResolveEdgeFolder(string profileFolder)
-        {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Microsoft\\Edge\\User Data\\";
-            ExistEdgeFolder(path, profileFolder);
+
+        private static string ResolveChromeFolder(string profileFolder) {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Google\Chrome\User Data";
+            ExistChromeFolder(path, profileFolder);
             return path;
 
         }
@@ -73,9 +76,10 @@ namespace RewardsEdge
          */
         public static Tuple<string, string, string> Arguments(string[] args)
         {
-            string profileFolder = "Default";
+            
             string driverPath = @".\";
-            string edgePath = ResolveEdgeFolder(profileFolder);
+            string profileFolder = "Profile 1";
+            string chromePath = ResolveChromeFolder(profileFolder);
             bool _w = true;
             for (int i = 0; i < args.Length; i++)
             {
@@ -93,7 +97,8 @@ namespace RewardsEdge
                         if (args.Length - 1 > i && args[i + 1][0] != '-')
                         {
                             profileFolder = args[++i];
-                            edgePath = ResolveEdgeFolder(profileFolder);
+                            chromePath = ResolveChromeFolder(profileFolder);
+
                         }
                         break;
 
@@ -108,23 +113,45 @@ namespace RewardsEdge
             }
             if (driverPath.Last() != '\\')
                 driverPath += "\\";
-            return Tuple.Create(profileFolder, edgePath, driverPath);
+            return Tuple.Create(profileFolder, chromePath, driverPath);
         }
 
+        private static async Task<string> GetDriverVersion(string version) {
+            HttpClient httpClient = new HttpClient();
+            string driverVersion="";
+            bool loop;
+            do {
+                loop = true;
+                int pPos = version.LastIndexOf('.');
+                if (pPos >= 0) {
+                    loop = false;
+                    version = version.Substring(0, pPos);
+                }
+                var resp = await httpClient.GetAsync("https://chromedriver.storage.googleapis.com/LATEST_RELEASE" + (pPos >= 0 ? "_" + version : ""));
+                if(resp.IsSuccessStatusCode) {
+                    driverVersion = await resp.Content.ReadAsStringAsync();
+                    loop = false;
+                }
+            } while (loop);
+            return driverVersion;
+        }
 
         /**
-         * <summary> Download the right driver version for Edge.</summary>
-         * To get the current Edge version it is used the function <see cref="GetEdgeVersion">GetEdgeVersion</see>.
-         * If in the folder there is a "edgedriver_win64.zip" file the program will ends, it is necessary to remove that file.
-         * If there is already a "msedgedriver.exe" file and the program can't remove it the program will ends, it is necessary to remove that file.
+         * <summary> Download the right driver version for Chrome.</summary>
+         * To get the current Chrome version it is used the function <see cref="GetChromeVersion">GetChromeVersion</see>.
+         * If in the folder there is a "chromedriver_win32.zip" file the program will ends, it is necessary to remove that file.
+         * If there is already a "chromedriver.exe" file and the program can't remove it the program will ends, it is necessary to remove that file.
          * <param name="path"> The path where download the driver</param>
          */
         public static void DownloadDriver(string path)
         {
-            string version = GetEdgeVersion();
-            string req = "https://msedgedriver.azureedge.net/" + version + "/edgedriver_" + GetOSArch() + ".zip";
-            string zipPath = Path.GetFullPath(path + "edgedriver_win64.zip");
-            string exePath = Path.GetFullPath(path + "msedgedriver.exe");
+            string actualVersion = GetChromeVersion();
+            string version;
+            var task = GetDriverVersion(actualVersion);
+            version = task.Result;
+            string req = "https://chromedriver.storage.googleapis.com/" + version + "/chromedriver_" + GetOSArch() + ".zip";
+            string zipPath = Path.GetFullPath(path + "chromedriver_win32.zip");
+            string exePath = Path.GetFullPath(path + "chromedriver.exe");
 
 
             if (File.Exists(zipPath))
@@ -158,8 +185,7 @@ namespace RewardsEdge
             using (ZipArchive archive = ZipFile.OpenRead(zipPath))
             {
                 Console.WriteLine("Unzipping new driver");
-
-                foreach (ZipArchiveEntry entry in archive.Entries.Where(e => e.FullName == "msedgedriver.exe"))
+                foreach (ZipArchiveEntry entry in archive.Entries.Where(e => e.FullName == "chromedriver.exe"))
                 {
                     entry.ExtractToFile(exePath);
                 }
@@ -190,12 +216,14 @@ namespace RewardsEdge
 
                     case "AMD64":
                         currentOS = OSList.Windows64;
-                        toRet = "win64";
+                        //there is no win64 version
+                        toRet = "win32";
                         break;
 
                     case "ARM64":
                         currentOS = OSList.WindowsARM;
-                        toRet = "arm64";
+                        //there is no arm64 version
+                        toRet = "win32";
                         break;
 
                     default:
@@ -213,30 +241,29 @@ namespace RewardsEdge
 
 
         /**
-         * <summary> Gets the Edge version.</summary>
-         * It uses powershell.exe to get the edge version.
-         * <returns> Edge version.</returns>
+         * <summary> Gets the Chrome version.</summary>
+         * It uses powershell.exe to get the chrome version.
+         * <returns> Chrome version.</returns>
          */
-        private static string GetEdgeVersion()
-        {
+        private static string GetChromeVersion() {
             // get version using powershell
-            var proc = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "powershell.exe",
-                    Arguments = "(Get-AppxPackage -Name \"Microsoft.MicrosoftEdge.Stable\").Version",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                }
-            };
-            proc.Start();
+            Object ret;
+            try {
+                 ret= Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Google\Chrome\BLBeacon", "version", null);
+            }
+            catch (SecurityException) {
+                Console.WriteLine("Impossible get the chrome version");
+                return "0.0.0.0";
+            }
+            if(ret is null) {
+                Console.WriteLine("Impossible get the chrome version");
+                return "0.0.0.0";
+            }
+            else {
+                Console.WriteLine("Chrome version: "+ ret.ToString());
+                return ret.ToString();
+            }
             // get return value
-            string ret = proc.StandardOutput.ReadToEnd();
-            // remove \n\r
-            return ret.Substring(0, ret.Length - 2);
         }
     }
 }

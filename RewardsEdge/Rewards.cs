@@ -1,6 +1,6 @@
-﻿using Microsoft.Edge.SeleniumTools;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Chrome;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+
 
 namespace RewardsEdge {
 
@@ -18,7 +19,7 @@ namespace RewardsEdge {
     class Rewards {
         private static WebDriverWait wait;
         private static IWebDriver driver;
-        private static EdgeOptions options;
+        private static ChromeOptions options;
         public const string HOMEURL = "https://rewards.microsoft.com/";
 
 
@@ -253,7 +254,7 @@ namespace RewardsEdge {
                 for (int j = 0; j < 8; j++) {
                     var slide = driver.FindElement(By.XPath("//div[@class='btOverlay']//div[@class='slide']/div[@id]"));
                     Click(slide);
-                    Thread.Sleep(100);
+                    Thread.Sleep(400);
                     // when all the correct answers have been selected this div tag with this class will appear
                     var temp = driver.FindElements(By.XPath("//div[@class='btOverlay']//div[@class='b_promtxt rqQPanel b_hide']"));
                     if (temp.Count > 0)
@@ -282,7 +283,7 @@ namespace RewardsEdge {
                 for (long j = 0; j < numOptions; j++) {
                     var slide = driver.FindElement(By.XPath("//div[@class='btOverlay']//input[@class='rqOption']"));
                     Click(slide);
-                    Thread.Sleep(100);
+                    Thread.Sleep(400);
                     // check if i selected the correct answer
                     if (driver.FindElements(By.XPath("//div[@class='btOverlay']//input[@class='rqOption correctAnswer']")).Count > 0)
                         break;
@@ -399,7 +400,7 @@ namespace RewardsEdge {
 
                 // open browser with different user agent to emulate mobile searches
                 options.AddArgument("--user-agent=Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.101 Mobile Safari/537.36");
-                driver = new EdgeDriver(options);
+                driver = new ChromeDriver(options);
                 for (long i = 0; i < pointMobileLeft; i += pointForSearch) {
                     driver.Navigate().GoToUrl("https://bing.com/search?q=" + rsg.GenString(length));
                     Thread.Sleep(sleep);
@@ -415,7 +416,7 @@ namespace RewardsEdge {
             }
             // not reopen the browser if not requested
             if (!closeBrowserAtEnd) {
-                driver = new EdgeDriver(options);
+                driver = new ChromeDriver(options);
             }
 
         }
@@ -459,7 +460,7 @@ namespace RewardsEdge {
             // manage arguments
             string profileFolder, path, userDataDir;
             try {
-                Tuple<string, string, string> paramsRet = EdgeManagment.Arguments(args);
+                Tuple<string, string, string> paramsRet = ChromeManagment.Arguments(args);
                 profileFolder = paramsRet.Item1;
                 userDataDir = paramsRet.Item2;
                 path = paramsRet.Item3;
@@ -469,30 +470,29 @@ namespace RewardsEdge {
                 return;
             }
 
-            // set Edge chromium
-            options = new EdgeOptions {
-                UseChromium = true
-            };
-
+            options = new ChromeOptions();
             //set the profile to use
             options.AddArgument("user-data-dir=" + userDataDir);
-            options.AddArguments("profile-directory=" + profileFolder);
+            options.AddArgument("profile-directory=" + profileFolder);
+            options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49");
+#if !DEBUG
             options.AddArgument("--start-maximized");
+#endif
 
             // Create an Edge session
             try {
-                driver = new EdgeDriver(path, options);
+                driver = new ChromeDriver(path, options);
             }
             catch (WebDriverException e) {
                 // probably the error is caused by an already open session of edge with the selected profile
-                if (File.Exists("msedgedriver.exe")) {
+                if (File.Exists("chromedriver.exe")) {
                     Console.WriteLine("ERROR: " + e);
-                    MessageBox.Show("Try to close all Microsoft Edge sessions and to restart the programma", "Impossible to open Edge with the selected profile", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Try to close all Chrome sessions and to restart the program", "Impossible to open Chrome with the selected profile", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 // install the driver
                 else {
                     Console.WriteLine("ERROR: " + e);
-                    EdgeManagment.DownloadDriver(path);
+                    ChromeManagment.DownloadDriver(path);
                     MessageBox.Show("The program will restart, if it will loop close the app", "The new driver has been installed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Application.Restart();
                     return;
@@ -501,7 +501,7 @@ namespace RewardsEdge {
             // raised when driver can't be used with the installed edge version, the correct driver version will be downloaded
             catch (InvalidOperationException e) {
                 Console.WriteLine("ERROR: " + e);
-                EdgeManagment.DownloadDriver(path);
+                ChromeManagment.DownloadDriver(path);
                 MessageBox.Show("The program will restart, if it will loop close the app", "The new driver has been installed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Application.Restart();
                 return;
@@ -510,7 +510,10 @@ namespace RewardsEdge {
             wait = new WebDriverWait(driver, new TimeSpan(0, 0, 5));
 
             // go to the rewards home page
-            driver.Url = HOMEURL;
+            // if sleep is removed an exception will arise
+            Thread.Sleep(500);
+            driver.Navigate().GoToUrl(HOMEURL);
+            
 
             Login();
             Console.WriteLine(generateXPATH(driver.FindElement(By.XPath("//div[@id='daily-sets']//div[@class='c-card-content']"))));
