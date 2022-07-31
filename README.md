@@ -6,7 +6,7 @@ An application for Windows written in C# with the [Selenium library](https://www
   - ~~Microsoft Edge based on Chromium~~ Chrome
 
 ## Dependencies
-  - [Selenium.WebDriver 3.141.0](https://www.nuget.org/packages/Selenium.WebDriver/3.141.0?_src=template)
+  - [Selenium.WebDriver 4.3.0](https://www.nuget.org/packages/Selenium.WebDriver/4.3.0?_src=template)
   - ~~[Microsoft.Edge.SeleniumTools](https://www.nuget.org/packages/Microsoft.Edge.SeleniumTools/3.141.2?_src=template)~~
   - [DotNetSeleniumExtras.WaitHelpers](https://www.nuget.org/packages/DotNetSeleniumExtras.WaitHelpers/3.11.0?_src=template)
   - [System.IO.Compression](https://www.nuget.org/packages/System.IO.Compression/4.3.0?_src=template)
