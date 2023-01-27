@@ -6,7 +6,7 @@ An application for Windows written in C# with the [Selenium library](https://www
   - ~~Microsoft Edge based on Chromium~~ Chrome
 
 ## Dependencies
-  - [Selenium.WebDriver 4.3.0](https://www.nuget.org/packages/Selenium.WebDriver/4.3.0?_src=template)
+  - [Selenium.WebDriver 4.8.0](https://www.nuget.org/packages/Selenium.WebDriver/4.8.0?_src=template)
   - ~~[Microsoft.Edge.SeleniumTools](https://www.nuget.org/packages/Microsoft.Edge.SeleniumTools/3.141.2?_src=template)~~
   - [DotNetSeleniumExtras.WaitHelpers](https://www.nuget.org/packages/DotNetSeleniumExtras.WaitHelpers/3.11.0?_src=template)
   - [System.IO.Compression](https://www.nuget.org/packages/System.IO.Compression/4.3.0?_src=template)
@@ -19,12 +19,12 @@ An application for Windows written in C# with the [Selenium library](https://www
     
 
   - **-p Path\of\folder**
-    - The program will install Chrome driver in the selected folder, you can put your driver in the folder if you want and the program will try to use it, but it will not be enabled to update the driver unleast you give the permission.  
-    If not specified the programm will use the folder where is located
+    - The program will install Chrome driver in the selected folder, you can put your driver in the folder you want and the program will try to use it, but it will not be enabled to update the driver unleast you give it the permission.  
+    If not specified the programm will use the folder where it is located
 
 
 - **-u Profile**
-    - The program will open Chrome using the specified profile. If not specified the program will use the default profile
+    - The program will open Chrome using the specified profile folder. If not specified the program will use the default profile
     
 ## Errors
 It may occur that an error interrupts the program, in this case close Chrome and restart the program. If an error also occurs in second attempt [report it](https://github.com/Metgraph/RewardsTool/issues).
