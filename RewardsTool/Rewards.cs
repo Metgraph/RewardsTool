@@ -20,7 +20,7 @@ namespace RewardsEdge {
         private static WebDriverWait wait;
         private static IWebDriver driver;
         private static ChromeOptions options;
-        public const string HOMEURL = "https://rewards.microsoft.com/";
+        public const string HOMEURL = "https://rewards.bing.com/";
 
 
 
