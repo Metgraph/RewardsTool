@@ -406,17 +406,19 @@ namespace RewardsEdge {
                     Thread.Sleep(sleep);
                 }
 
-                options.AddExcludedArgument("--user-agent");
-                driver.Quit();
-
-
             }
             catch (WebDriverException e) {
                 Console.WriteLine("mobile researches not enabled on this level - " + e);
             }
-            // not reopen the browser if not requested
-            if (!closeBrowserAtEnd) {
-                driver = new ChromeDriver(options);
+            finally
+            {
+                options.AddExcludedArgument("--user-agent");
+                driver.Quit();
+                // not reopen the browser if not requested
+                if (!closeBrowserAtEnd)
+                {
+                    driver = new ChromeDriver(options);
+                }
             }
 
         }
